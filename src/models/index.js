@@ -1,10 +1,13 @@
 const { Sequelize } = require("sequelize");
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialectOptions: {
-      ssl: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
     },
-  });
+  },
+});
 const initFoodModel = require("./food");
 const initClothesModel = require("./clothes");
 
