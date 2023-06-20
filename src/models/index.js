@@ -1,24 +1,26 @@
-const { Sequelize } = require("sequelize");
+"use strict";
+const { Sequelize, DataTypes } = require("sequelize");
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-  },
-});
-const initFoodModel = require("./food");
-const initClothesModel = require("./clothes");
+const DATABASE_URL =
+  process.env.NODE_ENV === "test" ? "sqlite:memory:" : process.env.DATABASE_URL;
+let sequelizeOptions =
+  process.env.NODE_ENV === "production"
+    ? {
+        dialectOptions: {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        },
+      }
+    : {};
+let sequelize = new Sequelize(DATABASE_URL, sequelizeOptions);
 
-const Food = initFoodModel(sequelize);
-const Clothes = initClothesModel(sequelize);
-
-Food.belongsTo(Clothes);
-Clothes.hasMany(Food);
+const food = require("./food.model");
+const clothes = require("./clothes.model");
 
 module.exports = {
-  Food,
-  Clothes,
-  sequelize,
+  db: sequelize,
+  Food: food(sequelize, DataTypes),
+  Clothes: clothes(sequelize, DataTypes),
 };
