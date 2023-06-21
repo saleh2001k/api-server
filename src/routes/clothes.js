@@ -1,73 +1,44 @@
+"use strict";
+
 const express = require("express");
-const { Clothes } = require("../models");
+const { Clothes } = require("../models/index");
 
 const router = express.Router();
 
-router.post("/", async (req, res, next) => {
-  try {
-    const { name, color, size } = req.body;
-    const clothes = await Clothes.create({ name, color, size });
-    res.status(201).json(clothes);
-  } catch (error) {
-    next(error);
-  }
-});
+router.get("/Clothes", getClothes);
+router.get("/Clothes/:id", getOneClothes);
+router.post("/Clothes", createClothes);
+router.put("/Clothes/:id", updateClothes);
+router.delete("/Clothes/:id", deleteClothes);
 
-router.get("/", async (req, res, next) => {
-  try {
-    const clothes = await Clothes.findAll();
-    res.json(clothes);
-  } catch (error) {
-    next(error);
-  }
-});
+async function getClothes(req, res) {
+  const allClothes = await Clothes.findAll();
+  res.status(200).json(allClothes);
+}
 
-router.get("/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const clothes = await Clothes.findByPk(id);
-    if (!clothes) {
-      res.status(404).json({ message: "Clothes not found" });
-    } else {
-      res.json(clothes);
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+async function getOneClothes(req, res) {
+  const id = req.params.id;
+  const clothesItem = await Clothes.findOne({ where: { id: id } });
+  res.status(200).json(clothesItem);
+}
 
-router.put("/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { name, color, size } = req.body;
-    const clothes = await Clothes.findByPk(id);
-    if (!clothes) {
-      res.status(404).json({ message: "Clothes not found" });
-    } else {
-      clothes.name = name;
-      clothes.color = color;
-      clothes.size = size;
-      await clothes.save();
-      res.json(clothes);
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+async function createClothes(req, res) {
+  const obj = req.body;
+  const newClothes = await Clothes.create(obj);
+  res.status(201).json(newClothes);
+}
 
-router.delete("/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const clothes = await Clothes.findByPk(id);
-    if (!clothes) {
-      res.status(404).json({ message: "Clothes not found" });
-    } else {
-      await clothes.destroy();
-      res.json(clothes);
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+async function updateClothes(req, res) {
+  const id = req.params.id;
+  const obj = req.body;
+  await Clothes.update(obj, { where: { id } });
+  const updatedClothes = await Clothes.findOne(obj, { where: { id } });
+  res.status(202).json(updatedClothes);
+}
+async function deleteClothes(req, res) {
+  const id = req.params.id;
+  const deleteTheClothes = await Clothes.destroy({ where: { id } });
+  res.status(204).json(deleteTheClothes);
+}
 
 module.exports = router;

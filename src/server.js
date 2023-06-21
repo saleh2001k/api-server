@@ -1,17 +1,26 @@
+"use strict";
+
 const express = require("express");
+const cors = require("cors");
+const pageNotFound = require("./error-handlers/404");
+const serverError = require("./error-handlers/500");
 const foodRouter = require("./routes/food");
 const clothesRouter = require("./routes/clothes");
-const notFoundHandler = require("./error-handlers/404");
-const errorHandler = require("./error-handlers/500");
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 
-app.use("/food", foodRouter);
-app.use("/clothes", clothesRouter);
+app.use(foodRouter);
+app.use(clothesRouter);
 
-app.use(notFoundHandler);
-app.use(errorHandler);
+function start(port) {
+  app.listen(port, () => console.log(`Server is running on port: ${port}`));
+}
+app.use(pageNotFound);
+app.use(serverError);
 
-module.exports = app;
+module.exports = {
+  start,
+  app,
+};
