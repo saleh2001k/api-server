@@ -1,45 +1,53 @@
 "use strict";
 
 const express = require("express");
-const { Food } = require("../models/index");
+const { Food, ingredientCollection } = require("../models/index");
 
 const router = express.Router();
+const {foodCollection} = require("../models/index");
 
 router.get("/food", getFood);
 router.get("/food/:id", getOneFood);
 router.post("/food", createFood);
-router.put("/food/:id", updateFood); //update
+router.put("/food/:id", updateFood); 
 router.delete("/food/:id", deleteFood);
+router.get("/foodIngredient/:id", getFoodIngredient);
+
 
 async function getFood(req, res) {
-  const allFood = await Food.findAll();
+  let allFood = await foodCollection.read();
   res.status(200).json(allFood);
 }
 
-async function createFood(req, res) {
-  const obj = req.body;
-  const newFood = await Food.create(obj);
+ async function getOneFood(req, res) {
+  let id = parseInt(req.params.id);
+  let oneFood = await foodCollection.read(id);
+  res.status(200).json(oneFood);
+}
+
+ async function createFood(req, res) {
+  let obj = req.body;
+  let newFood = await foodCollection.create(obj);
   res.status(201).json(newFood);
 }
 
-async function getOneFood(req, res) {
-  const id = req.params.id;
-  const foodItem = await Food.findOne({ where: { id: id } });
-  res.status(200).json(foodItem);
+ async function updateFood(req, res) {
+  let id = parseInt(req.params.id);
+  let obj = req.body;
+  let updatedFood = await foodCollection.update(id, obj);
+  res.status(200).json(updatedFood);
 }
 
-async function updateFood(req, res) {
-  const id = req.params.id;
-  const obj = req.body;
-  await Food.update(obj, { where: { id } });
-  const updatedFood = await Food.findOne({ where: { id } });
-  res.status(202).json(updatedFood);
+ async function deleteFood(req, res) {
+  let id = parseInt(req.params.id);
+  let deletedFood = await foodCollection.delete(id);
+  res.status(204).json(deletedFood);
 }
-async function deleteFood(req, res) {
-  const id = req.params.id;
-  const deleteTheFood = await Food.destroy({ where: { id } });
-  res.status(204).json(deleteTheFood);
-  return deleteTheFood;
+
+ async function getFoodIngredient(req, res) {
+  let id = parseInt(req.params.id);
+  let foodIngredient = await foodCollection.readFoodIng(id, ingredientCollection.model);
+  res.status(200).json(foodIngredient);
 }
 
 module.exports = router;
