@@ -46,7 +46,7 @@ describe('Server test', () => {
       description: 'Juicy and flavorful',
       price: '8.99',
     });
-    expect(updateRes.status).toBe(202);
+    expect(updateRes.status).toBe(200);
     expect(updateRes.body.name).toEqual('Burger');
 
     const fetchRes = await mockServer.get(`/food/${createdFood.id}`);
@@ -68,6 +68,49 @@ describe('Server test', () => {
     const res = await mockServer.delete('/food/10');
     expect(res.status).toBe(204);
   });
+
+
+  //------------- Ingredients -------------//
+
+  it('should add a new ingredient and update it (POST /ingredient, PUT /ingredient/:id)', async () => {
+    // Create a new ingredient
+    const createRes = await mockServer.post('/ingredient').send({
+      name: 'Cheese',
+      quantity: 5,
+      foodId: 1,
+    });
+    expect(createRes.status).toBe(200);
+    const createdIngredient = createRes.body;
+    expect(createdIngredient.name).toEqual('Cheese');
+
+    const updateRes = await mockServer.put(`/ingredient/${createdIngredient.id}`).send({
+      name: 'Tomato',
+      quantity: 3,
+      foodId: 1,
+    });
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.name).toEqual('Tomato');
+
+    const fetchRes = await mockServer.get(`/ingredient/${createdIngredient.id}`);
+    expect(fetchRes.status).toBe(200);
+    const updatedIngredient = fetchRes.body;
+    expect(updatedIngredient.name).toEqual('Tomato');
+    expect(updatedIngredient.quantity).toEqual(3);
+  });
+
+  it('should retrieve all ingredients (GET /ingredient)', async () => {
+    const res = await mockServer.get('/ingredient');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
+
+  it('should delete an ingredient by id (DELETE /ingredient/:id)', async () => {
+    const res = await mockServer.delete('/ingredient/10');
+    expect(res.status).toBe(200);
+  });
+
+
 
   //------------- Clothes -------------//
 
