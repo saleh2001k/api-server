@@ -69,7 +69,7 @@ describe('Server test', () => {
     expect(res.status).toBe(204);
   });
 
-
+     
   //------------- Ingredients -------------//
 
   it('should add a new ingredient and update it (POST /ingredient, PUT /ingredient/:id)', async () => {
